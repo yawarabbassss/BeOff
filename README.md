@@ -1,7 +1,19 @@
 # BeOff 🛡️ — Privacy, Ad Blocking & Content Protection App
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Flutter-blue.svg)](https://flutter.dev)
+[![Privacy](https://img.shields.io/badge/Privacy-100%25%20On--Device-success.svg)](PRIVACY.md)
+[![Zero Logs](https://img.shields.io/badge/Browsing%20History-Zero%20Logs-brightgreen.svg)](PRIVACY.md)
+[![Status](https://img.shields.io/badge/Release-v1.0.0-cyan.svg)](https://github.com/yawarabbassss/BeOff/releases)
+
 > **Browse cleaner. Stay safer.**  
-> BeOff is an Android-first, local-first security and privacy application engineered to shield users from ads, trackers, malicious/phishing websites, sponsored clutter, and inappropriate sexual/explicit content while maximizing privacy and minimizing data collection.
+> BeOff is an Android-first, local-first security and privacy application engineered to shield users and families from ads, cross-site trackers, malicious/phishing websites, sponsored search clutter, and inappropriate sexual/explicit content while maximizing privacy and zero browsing data collection.
+
+---
+
+## 🏷️ Repository Tags & Topics
+
+`#privacy` `#ad-blocker` `#tracker-blocker` `#content-safety` `#family-safety` `#parental-controls` `#android` `#flutter` `#vpnservice` `#dns-filter` `#malware-protection` `#zero-log` `#on-device-ml` `#clean-architecture` `#supabase`
 
 ---
 
@@ -17,7 +29,7 @@
    - Automated query-parameter stripping (`utm_*`, `fbclid`, `gclid`, `mc_eid`, etc.).
 
 3. **On-Device Content Safety Engine**
-   - Local computer vision and chrominance heuristic classifier (SAFE, SUGGESTIVE, NUDITY, EXPLICIT).
+   - Local computer vision and chrominance heuristic classifier (`SAFE`, `SUGGESTIVE`, `NUDITY`, `EXPLICIT`).
    - **Zero Cloud Leakage**: Frames are processed purely in device RAM and instantly recycled.
    - Pre-render placeholders and blur shields.
 
@@ -42,17 +54,11 @@
 
 ---
 
-## 📱 Screenshots & Design Language
-
-* **Color Palette**: Deep Obsidian Slate (`#0B1120`), Glowing Emerald Shield (`#10B981`), Crisp Cyan (`#06B6D4`), Warning Amber (`#F59E0B`), Coral Alert (`#EF4444`).
-* **Design Philosophy**: Calm, trustworthy, modern, accessible contrast, and zero cyberpunk clutter. The dashboard communicates protection status within 3 seconds.
-
----
-
 ## 📂 Project Structure
 
 ```
 BeOff/
+├── LICENSE                # MIT Open Source License
 ├── android/               # Native Kotlin VPNService, DNS Wire Parser & ML Bridge
 ├── assets/                # Rule assets (EasyList, EasyPrivacy, Malware, SVG Logo)
 ├── lib/
@@ -93,5 +99,6 @@ BeOff/
 
 ## 📜 Licenses
 
-* EasyList & EasyPrivacy: GPLv3 / CC BY-SA 3.0
-* BeOff Security Feeds & Application: MIT License
+* **Application Code**: Licensed under the [MIT License](LICENSE).
+* **EasyList & EasyPrivacy**: Dual-licensed under GPLv3 / CC BY-SA 3.0.
+* **BeOff Security Feeds**: Licensed under MIT License.
