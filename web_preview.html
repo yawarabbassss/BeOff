@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeOff — Live Interactive Application Preview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); }
+      50% { transform: scale(1.04); box-shadow: 0 0 45px rgba(16, 185, 129, 0.7); }
+    }
+    .pulse-active { animation: pulse-glow 2.5s infinite ease-in-out; }
+    .safe-blur { filter: blur(20px) grayscale(70%); transition: filter 0.3s ease; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-2 sm:p-6 font-sans antialiased select-none">
+
+  <!-- Mobile Device Mockup Frame -->
+  <div class="w-full max-w-[420px] h-[860px] bg-slate-900 border-4 border-slate-700 rounded-[44px] shadow-2xl overflow-hidden flex flex-col relative ring-1 ring-white/10">
+
+    <!-- Status Bar -->
+    <div class="h-9 bg-slate-950 px-6 flex justify-between items-center text-xs text-slate-400 font-medium z-30 shrink-0">
+      <span>12:45</span>
+      <div class="w-20 h-4 bg-black rounded-full mx-auto"></div>
+      <div class="flex items-center gap-1.5">
+        <span id="vpn-status-badge" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">VPN</span>
+        <span>100%</span>
+      </div>
+    </div>
+
+    <!-- App Header -->
+    <div class="bg-slate-900/90 backdrop-blur border-b border-slate-800/80 px-4 py-3 flex justify-between items-center z-20 shrink-0">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-slate-950 shadow-md">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+          </svg>
+        </div>
+        <span class="font-extrabold text-lg tracking-tight text-white">BeOff</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button onclick="switchScreen('statistics')" class="p-2 text-slate-400 hover:text-emerald-400 rounded-lg hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+        </button>
+        <button onclick="switchScreen('filters')" class="p-2 text-slate-400 hover:text-emerald-400 rounded-lg hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/></svg>
+        </button>
+        <button onclick="switchScreen('settings')" class="p-2 text-slate-400 hover:text-emerald-400 rounded-lg hover:bg-slate-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Screen Content Container -->
+    <div id="screen-container" class="flex-1 overflow-y-auto bg-slate-950 p-4 space-y-4">
+
+      <!-- ================= SCREEN 1: DASHBOARD ================= -->
+      <div id="screen-dashboard" class="space-y-5">
+        
+        <!-- Engine Status Chips -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          <span id="chip-dns" class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 font-semibold shrink-0">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> DNS Active
+          </span>
+          <span id="chip-ads" class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-medium shrink-0">
+            Ad Guard ON
+          </span>
+          <span id="chip-trackers" class="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-medium shrink-0">
+            Anti-Tracker
+          </span>
+          <span id="chip-content" class="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-medium shrink-0">
+            Content Shield
+          </span>
+        </div>
+
+        <!-- Main Shield Button -->
+        <div class="flex flex-col items-center justify-center py-4">
+          <button id="shield-button" onclick="toggleProtection()" class="w-36 h-36 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-400 flex items-center justify-center text-slate-950 shadow-2xl transition duration-300 transform active:scale-95 pulse-active">
+            <svg id="shield-icon" class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <div class="mt-4 text-center">
+            <h3 id="shield-status-text" class="text-xl font-black text-emerald-400 tracking-tight">You're Protected.</h3>
+            <p id="shield-sub-text" class="text-xs text-slate-400 mt-1">Filtering network traffic on device (0 URLs collected)</p>
+          </div>
+        </div>
+
+        <!-- Today's Protection Grid -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-slate-300">Today's Protection</span>
+            <span id="total-blocked-badge" class="text-emerald-400 font-semibold">1,248 blocked</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3">
+              <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Ads Blocked
+              </div>
+              <div id="stat-ads" class="text-2xl font-black text-white mt-1">682</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3">
+              <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Trackers Stopped
+              </div>
+              <div id="stat-trackers" class="text-2xl font-black text-white mt-1">421</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3">
+              <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-red-400"></span> Unsafe Threats
+              </div>
+              <div id="stat-malware" class="text-2xl font-black text-white mt-1">112</div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3">
+              <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span> Explicit Hidden
+              </div>
+              <div id="stat-explicit" class="text-2xl font-black text-white mt-1">33</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Controls Tray -->
+        <div class="space-y-2 pt-1">
+          <span class="font-bold text-xs text-slate-300">Quick Controls</span>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="switchScreen('content-safety')" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl p-3 text-left transition flex items-center gap-3">
+              <div class="p-2 bg-amber-500/10 text-amber-400 rounded-xl">🛡️</div>
+              <div>
+                <div class="font-bold text-white">Content Safety</div>
+                <div class="text-[10px] text-slate-400">Family & Blur</div>
+              </div>
+            </button>
+            <button onclick="switchScreen('clean-search')" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl p-3 text-left transition flex items-center gap-3">
+              <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl">🔍</div>
+              <div>
+                <div class="font-bold text-white">Clean Search</div>
+                <div class="text-[10px] text-slate-400">Ad-free results</div>
+              </div>
+            </button>
+            <button onclick="switchScreen('allowlist')" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl p-3 text-left transition flex items-center gap-3">
+              <div class="p-2 bg-cyan-500/10 text-cyan-400 rounded-xl">⚙️</div>
+              <div>
+                <div class="font-bold text-white">Allow / Block</div>
+                <div class="text-[10px] text-slate-400">Custom rules</div>
+              </div>
+            </button>
+            <button onclick="switchScreen('browser')" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-2xl p-3 text-left transition flex items-center gap-3">
+              <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl">🌐</div>
+              <div>
+                <div class="font-bold text-white">Shield Browser</div>
+                <div class="text-[10px] text-slate-400">Live test sandbox</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="text-center text-[10px] text-slate-500 py-1 flex items-center justify-center gap-1">
+          🔒 Zero data collection • 100% on-device filtering
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 2: CONTENT SAFETY & LAB ================= -->
+      <div id="screen-content-safety" class="hidden space-y-4">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('dashboard')" class="text-slate-400 hover:text-white text-xs">← Back</button>
+            <h2 class="font-bold text-base text-white">Content Safety Shield</h2>
+          </div>
+        </div>
+
+        <!-- Sensitivity Slider -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-white">Protection Sensitivity</span>
+            <span id="sensitivity-label" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">High (Recommended)</span>
+          </div>
+          <input id="sensitivity-slider" type="range" min="1" max="4" value="3" onchange="updateSensitivity(this.value)" class="w-full accent-emerald-400 bg-slate-800 rounded-lg cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-semibold px-1">
+            <span>Low</span>
+            <span>Medium</span>
+            <span>High</span>
+            <span>Child Mode</span>
+          </div>
+        </div>
+
+        <!-- On-Device Classifier Interactive Lab -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-xs text-slate-200">On-Device ML Classifier Test</h3>
+            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-mono">0 ms Network</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Click a test scenario below to simulate local computer-vision evaluation:</p>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="testClassify('safe')" class="py-2 px-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700">
+              🏞️ Safe Landscape
+            </button>
+            <button onclick="testClassify('suggestive')" class="py-2 px-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700">
+              👤 Suggestive
+            </button>
+            <button onclick="testClassify('explicit')" class="py-2 px-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700">
+              🚫 Explicit
+            </button>
+          </div>
+
+          <!-- Preview Sandbox -->
+          <div class="mt-3 relative rounded-xl overflow-hidden border border-slate-700 h-44 bg-slate-950 flex flex-col items-center justify-center">
+            <div id="test-image-container" class="w-full h-full flex flex-col items-center justify-center p-4 text-center">
+              <span id="test-image-emoji" class="text-5xl">🏞️</span>
+              <span id="test-image-desc" class="text-xs text-slate-300 mt-2 font-medium">Mountain Landscape Frame</span>
+            </div>
+
+            <!-- Blur Overlay (Triggered on unsafe) -->
+            <div id="test-blur-overlay" class="hidden absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center">
+              <div class="p-2.5 bg-red-500/20 text-red-400 rounded-full mb-2">👁️‍🗨️</div>
+              <span id="blur-title" class="text-xs font-bold text-red-400">Content Hidden by BeOff</span>
+              <span id="blur-reason" class="text-[10px] text-slate-400 mt-1">Classified as Nudity/Explicit</span>
+              <button onclick="revealImage()" class="mt-2 text-[10px] font-bold text-emerald-400 hover:underline">Reveal Once</button>
+            </div>
+          </div>
+
+          <div id="classification-badge" class="p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex justify-between items-center text-xs">
+            <span class="text-slate-400">Classification:</span>
+            <span id="classification-result" class="font-bold text-emerald-400">SAFE (99.2% confidence)</span>
+          </div>
+        </div>
+
+        <!-- Child Mode PIN Box -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 border border-emerald-500/20 rounded-2xl p-4 space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">👶</span>
+            <span class="font-bold text-sm text-white">Parental Child Mode</span>
+          </div>
+          <p class="text-[11px] text-slate-300">Lock safety filters, block adult portals, and enforce SafeSearch with a 4-digit PIN.</p>
+          <button onclick="alert('Child Protection Mode Locked with Parent PIN. Strict SafeSearch & adult filter active.')" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs shadow">
+            Lock Child Protection Mode
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 3: CLEAN SEARCH & ANNOYANCES ================= -->
+      <div id="screen-clean-search" class="hidden space-y-4">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('dashboard')" class="text-slate-400 hover:text-white text-xs">← Back</button>
+            <h2 class="font-bold text-base text-white">Clean Search & Annoyances</h2>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <div class="font-bold text-xs text-white">Strip Sponsored Search Ads</div>
+              <div class="text-[10px] text-slate-400">Google, Bing, DuckDuckGo, Yahoo</div>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+          </div>
+          <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+            <div>
+              <div class="font-bold text-xs text-white">Block Cookie GDPR Banners</div>
+              <div class="text-[10px] text-slate-400">OneTrust, Cookiebot, Optanon</div>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+          </div>
+          <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+            <div>
+              <div class="font-bold text-xs text-white">Suppress Newsletter Overlays</div>
+              <div class="text-[10px] text-slate-400">Subscribe popups & promotional modals</div>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
+          <h3 class="font-bold text-xs text-white">Search Engine Demo Sandbox</h3>
+          <p class="text-[11px] text-slate-400">Simulating search cleanup DOM rule:</p>
+          
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2 text-xs">
+            <div id="sponsored-ad-box" class="p-2 bg-amber-500/10 border border-amber-500/30 rounded text-amber-300 flex justify-between items-center">
+              <span>[Ad] Sponsored Product placement</span>
+              <button onclick="hideAdBox()" class="text-[10px] px-1.5 py-0.5 bg-amber-500/20 rounded hover:bg-amber-500/40">Block</button>
+            </div>
+            <div class="p-2 bg-slate-900 rounded text-slate-200">
+              <span class="text-emerald-400 font-bold">1. Legitimate Organic Search Result</span>
+              <p class="text-[10px] text-slate-400">https://example.org/privacy-guide</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 4: ALLOWLIST & BLOCKLIST ================= -->
+      <div id="screen-allowlist" class="hidden space-y-4">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('dashboard')" class="text-slate-400 hover:text-white text-xs">← Back</button>
+            <h2 class="font-bold text-base text-white">Allow & Block Rules</h2>
+          </div>
+        </div>
+
+        <!-- Add Rule Input -->
+        <div class="flex gap-2">
+          <input id="new-domain-input" type="text" placeholder="e.g. news-site.com" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+          <button onclick="addDomain('allow')" class="px-3 py-2 bg-emerald-500 text-slate-950 text-xs font-bold rounded-xl hover:bg-emerald-400">Allow</button>
+          <button onclick="addDomain('block')" class="px-3 py-2 bg-red-500 text-white text-xs font-bold rounded-xl hover:bg-red-400">Block</button>
+        </div>
+
+        <!-- Rules List -->
+        <div class="space-y-2" id="rules-container">
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-400">✅</span>
+              <div>
+                <span class="font-bold text-white">trusted-portal.org</span>
+                <div class="text-[10px] text-slate-400">Bypasses ad/tracker filters</div>
+              </div>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 text-xs font-bold">✕</button>
+          </div>
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-red-400">🚫</span>
+              <div>
+                <span class="font-bold text-white">annoying-tracker.net</span>
+                <div class="text-[10px] text-slate-400">Custom blocked domain</div>
+              </div>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 text-xs font-bold">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 5: SHIELD BROWSER SANDBOX ================= -->
+      <div id="screen-browser" class="hidden space-y-3">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('dashboard')" class="text-slate-400 hover:text-white text-xs">← Back</button>
+            <h2 class="font-bold text-base text-white">Shield Browser</h2>
+          </div>
+          <span id="browser-blocked-tag" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">14 Trackers Blocked</span>
+        </div>
+
+        <!-- URL Input -->
+        <div class="flex gap-2">
+          <input id="browser-url" type="text" value="https://news-sample.org?utm_source=fb&gclid=xyz123" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-[11px] text-slate-300 font-mono focus:outline-none focus:border-emerald-500">
+          <button onclick="sanitizeAndNavigate()" class="px-3 py-2 bg-emerald-500 text-slate-950 text-xs font-bold rounded-xl">Go</button>
+        </div>
+
+        <!-- Simulated Web Page Viewport -->
+        <div class="h-[430px] bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-3 overflow-y-auto">
+          <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-400 flex items-center gap-2">
+            <span>🛡️</span>
+            <span>Cleaned URL: Stripped <b>utm_source</b> and <b>gclid</b> tracking tokens.</span>
+          </div>
+
+          <h1 class="text-base font-bold text-white">Global Privacy & Security Trends 2026</h1>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Local-first on-device filtering protects young users from surveillance while maintaining browsing speeds.
+          </p>
+
+          <!-- Simulated Ad Placeholder (Cleaned) -->
+          <div class="p-3 bg-slate-950 border border-dashed border-slate-800 rounded-xl text-center text-[10px] text-slate-500">
+            [Ad Banner Removed by BeOff AdBlock Engine]
+          </div>
+
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Zero telemetry endpoints were contacted during the loading of this page.
+          </p>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 6: PRIVACY STATISTICS ================= -->
+      <div id="screen-statistics" class="hidden space-y-4">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('dashboard')" class="text-slate-400 hover:text-white text-xs">← Back</button>
+            <h2 class="font-bold text-base text-white">Privacy Statistics</h2>
+          </div>
+          <button onclick="resetStats()" class="text-xs text-red-400 hover:underline">Reset</button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <span class="text-xs text-slate-400">Total Filtered DNS Queries</span>
+          <div class="text-3xl font-black text-emerald-400">1,248</div>
+          <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden flex">
+            <div class="bg-emerald-400 w-[55%]"></div>
+            <div class="bg-cyan-400 w-[30%]"></div>
+            <div class="bg-red-400 w-[10%]"></div>
+            <div class="bg-amber-400 w-[5%]"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+            <span class="text-emerald-400">■ 55% Ads (682)</span>
+            <span class="text-cyan-400">■ 30% Trackers (421)</span>
+            <span class="text-red-400">■ 10% Malware (112)</span>
+            <span class="text-amber-400">■ 5% Explicit (33)</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2 text-xs">
+          <div class="font-bold text-white">On-Device Battery & Memory Audit</div>
+          <div class="flex justify-between text-slate-400 py-1 border-b border-slate-800">
+            <span>Battery Consumption</span>
+            <span class="text-emerald-400 font-bold">&lt; 1.1% / day</span>
+          </div>
+          <div class="flex justify-between text-slate-400 py-1 border-b border-slate-800">
+            <span>RAM Allocation</span>
+            <span class="text-cyan-400 font-bold">~ 14.8 MB</span>
+          </div>
+          <div class="flex justify-between text-slate-400 py-1">
+            <span>Browsing URLs Stored</span>
+            <span class="text-emerald-400 font-bold">0 Records (Zero DB table)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 7: FILTER LISTS HUB ================= -->
+      <div id="screen-filters" class="hidden space-y-3">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('dashboard')" class="text-slate-400 hover:text-white text-xs">← Back</button>
+            <h2 class="font-bold text-base text-white">Filter Lists & Feeds</h2>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
+            <div>
+              <div class="font-bold text-white">EasyList Standard</div>
+              <div class="text-[10px] text-slate-400">75,200 ad blocking rules</div>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+          </div>
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
+            <div>
+              <div class="font-bold text-white">EasyPrivacy</div>
+              <div class="text-[10px] text-slate-400">38,400 tracking rules</div>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+          </div>
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
+            <div>
+              <div class="font-bold text-white">BeOff Malware & Phishing</div>
+              <div class="text-[10px] text-slate-400">15,400 threat hosts</div>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+          </div>
+          <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center">
+            <div>
+              <div class="font-bold text-white">BeOff Annoyances & Cookie Banners</div>
+              <div class="text-[10px] text-slate-400">12,100 popup overlays</div>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5 accent-emerald-500 cursor-pointer">
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 8: SETTINGS & ACCOUNT ================= -->
+      <div id="screen-settings" class="hidden space-y-4">
+        <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <button onclick="switchScreen('dashboard')" class="text-slate-400 hover:text-white text-xs">← Back</button>
+            <h2 class="font-bold text-base text-white">Settings & Account</h2>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950 font-black text-lg">
+            G
+          </div>
+          <div class="flex-1">
+            <div class="font-bold text-sm text-white">Guest User (Offline)</div>
+            <div class="text-xs text-slate-400">Protection active without account</div>
+          </div>
+          <button onclick="alert('Account sync is optional. You can sign in with Supabase to backup your rules.')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-semibold">
+            Sync
+          </button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 text-xs">
+          <div class="font-bold text-white">Encrypted DNS Provider</div>
+          <div class="space-y-1 text-slate-300">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="dns" checked class="accent-emerald-400"> Cloudflare DNS (1.1.1.1)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="dns" class="accent-emerald-400"> Quad9 Threat Blocking (9.9.9.9)
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="dns" class="accent-emerald-400"> AdGuard DNS (94.140.14.14)
+            </label>
+          </div>
+        </div>
+
+        <div class="text-[11px] text-slate-500 text-center space-y-1">
+          <div>BeOff V1.0.0 • Open Source & Privacy Engineered</div>
+          <div>Dual-licensed under MIT and GPLv3 for filter lists.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="h-16 bg-slate-900/90 backdrop-blur border-t border-slate-800 px-6 flex justify-between items-center text-slate-400 text-xs z-20 shrink-0">
+      <button onclick="switchScreen('dashboard')" class="flex flex-col items-center gap-1 hover:text-emerald-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+        <span class="text-[10px] font-semibold">Home</span>
+      </button>
+      <button onclick="switchScreen('content-safety')" class="flex flex-col items-center gap-1 hover:text-emerald-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.25-8.25-3.286zm0 13.036h.008v.008H12v-.008z"/></svg>
+        <span class="text-[10px] font-semibold">Safety</span>
+      </button>
+      <button onclick="switchScreen('browser')" class="flex flex-col items-center gap-1 hover:text-emerald-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253"/></svg>
+        <span class="text-[10px] font-semibold">Browser</span>
+      </button>
+      <button onclick="switchScreen('statistics')" class="flex flex-col items-center gap-1 hover:text-emerald-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/></svg>
+        <span class="text-[10px] font-semibold">Stats</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Interactive JavaScript Engine for Live Preview -->
+  <script>
+    let isProtected = true;
+    let adsCount = 682;
+    let trackersCount = 421;
+    let malwareCount = 112;
+    let explicitCount = 33;
+
+    // Real-time counter simulation while active
+    setInterval(() => {
+      if (isProtected) {
+        if (Math.random() > 0.4) {
+          adsCount += Math.floor(Math.random() * 2) + 1;
+          document.getElementById('stat-ads').innerText = adsCount;
+        }
+        if (Math.random() > 0.6) {
+          trackersCount += 1;
+          document.getElementById('stat-trackers').innerText = trackersCount;
+        }
+        const total = adsCount + trackersCount + malwareCount + explicitCount;
+        document.getElementById('total-blocked-badge').innerText = total.toLocaleString() + ' blocked';
+      }
+    }, 2800);
+
+    function toggleProtection() {
+      isProtected = !isProtected;
+      const btn = document.getElementById('shield-button');
+      const statusText = document.getElementById('shield-status-text');
+      const subText = document.getElementById('shield-sub-text');
+      const badge = document.getElementById('vpn-status-badge');
+      const chipDns = document.getElementById('chip-dns');
+
+      if (isProtected) {
+        btn.classList.remove('from-slate-700', 'to-slate-800', 'text-slate-400');
+        btn.classList.add('from-emerald-500', 'to-cyan-400', 'text-slate-950', 'pulse-active');
+        statusText.innerText = "You're Protected.";
+        statusText.className = "text-xl font-black text-emerald-400 tracking-tight";
+        subText.innerText = "Filtering network traffic on device (0 URLs collected)";
+        badge.innerText = "VPN";
+        badge.className = "px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        chipDns.className = "px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 font-semibold shrink-0";
+        chipDns.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> DNS Active';
+      } else {
+        btn.classList.remove('from-emerald-500', 'to-cyan-400', 'text-slate-950', 'pulse-active');
+        btn.classList.add('from-slate-700', 'to-slate-800', 'text-slate-400');
+        statusText.innerText = "Protection is Off";
+        statusText.className = "text-xl font-black text-slate-400 tracking-tight";
+        subText.innerText = "Tap shield button to activate real-time protection";
+        badge.innerText = "OFF";
+        badge.className = "px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30";
+        chipDns.className = "px-2.5 py-1 rounded-full bg-slate-800 text-slate-500 border border-slate-700 shrink-0";
+        chipDns.innerHTML = 'DNS Inactive';
+      }
+    }
+
+    function switchScreen(screenId) {
+      const screens = [
+        'dashboard', 'content-safety', 'clean-search', 'allowlist',
+        'browser', 'statistics', 'filters', 'settings'
+      ];
+      screens.forEach(s => {
+        const el = document.getElementById('screen-' + s);
+        if (el) el.classList.add('hidden');
+      });
+      const target = document.getElementById('screen-' + screenId);
+      if (target) {
+        target.classList.remove('hidden');
+      }
+    }
+
+    function testClassify(type) {
+      const imgContainer = document.getElementById('test-image-container');
+      const emoji = document.getElementById('test-image-emoji');
+      const desc = document.getElementById('test-image-desc');
+      const blurOverlay = document.getElementById('test-blur-overlay');
+      const badge = document.getElementById('classification-result');
+
+      blurOverlay.classList.add('hidden');
+      imgContainer.classList.remove('safe-blur');
+
+      if (type === 'safe') {
+        emoji.innerText = '🏞️';
+        desc.innerText = 'Scenic Mountain Nature Frame';
+        badge.innerText = 'SAFE (99.4% confidence)';
+        badge.className = 'font-bold text-emerald-400';
+      } else if (type === 'suggestive') {
+        emoji.innerText = '👤';
+        desc.innerText = 'Suggestive Beach Portrait';
+        badge.innerText = 'SUGGESTIVE (83.1% confidence)';
+        badge.className = 'font-bold text-amber-400';
+        blurOverlay.classList.remove('hidden');
+        document.getElementById('blur-title').innerText = 'Blurred by BeOff Shield';
+        document.getElementById('blur-reason').innerText = 'Suggestive content sensitivity triggered';
+        imgContainer.classList.add('safe-blur');
+      } else if (type === 'explicit') {
+        emoji.innerText = '🔞';
+        desc.innerText = 'Explicit Adult Thumbnail';
+        badge.innerText = 'EXPLICIT (97.8% confidence)';
+        badge.className = 'font-bold text-red-400';
+        blurOverlay.classList.remove('hidden');
+        document.getElementById('blur-title').innerText = 'Content Blocked for Safety';
+        document.getElementById('blur-reason').innerText = 'Explicit adult imagery detected on-device';
+        imgContainer.classList.add('safe-blur');
+      }
+    }
+
+    function revealImage() {
+      document.getElementById('test-blur-overlay').classList.add('hidden');
+      document.getElementById('test-image-container').classList.remove('safe-blur');
+    }
+
+    function updateSensitivity(val) {
+      const label = document.getElementById('sensitivity-label');
+      const map = {
+        '1': ['Low', 'bg-slate-500/20 text-slate-300'],
+        '2': ['Medium', 'bg-cyan-500/20 text-cyan-400'],
+        '3': ['High (Recommended)', 'bg-emerald-500/20 text-emerald-400'],
+        '4': ['Strict / Child Mode', 'bg-amber-500/20 text-amber-400']
+      };
+      label.innerText = map[val][0];
+      label.className = `px-2 py-0.5 rounded-full font-bold ${map[val][1]}`;
+    }
+
+    function hideAdBox() {
+      const box = document.getElementById('sponsored-ad-box');
+      box.style.display = 'none';
+      alert('Sponsored Ad container hidden by BeOff Clean Search Engine.');
+    }
+
+    function addDomain(type) {
+      const input = document.getElementById('new-domain-input');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const container = document.getElementById('rules-container');
+      const div = document.createElement('div');
+      div.className = 'p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center text-xs';
+      
+      const isAllow = type === 'allow';
+      div.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="${isAllow ? 'text-emerald-400' : 'text-red-400'}">${isAllow ? '✅' : '🚫'}</span>
+          <div>
+            <span class="font-bold text-white">${val}</span>
+            <div class="text-[10px] text-slate-400">${isAllow ? 'Allowlisted domain' : 'Custom blocked domain'}</div>
+          </div>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 text-xs font-bold">✕</button>
+      `;
+      container.prepend(div);
+      input.value = '';
+    }
+
+    function sanitizeAndNavigate() {
+      const urlInput = document.getElementById('browser-url');
+      const raw = urlInput.value;
+      const urlObj = new URL(raw.startsWith('http') ? raw : 'https://' + raw);
+      urlObj.searchParams.delete('utm_source');
+      urlObj.searchParams.delete('gclid');
+      urlObj.searchParams.delete('fbclid');
+      urlInput.value = urlObj.toString();
+      alert('URL Cleaned: All cross-site tracking parameters stripped before loading.');
+    }
+
+    function resetStats() {
+      adsCount = 0;
+      trackersCount = 0;
+      malwareCount = 0;
+      explicitCount = 0;
+      document.getElementById('stat-ads').innerText = '0';
+      document.getElementById('stat-trackers').innerText = '0';
+      document.getElementById('stat-malware').innerText = '0';
+      document.getElementById('stat-explicit').innerText = '0';
+      document.getElementById('total-blocked-badge').innerText = '0 blocked';
+      alert('Local on-device statistics counters have been reset to zero.');
+    }
+  </script>
+</body>
+</html>
