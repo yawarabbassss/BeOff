@@ -1,0 +1,15 @@
+! Title: BeOff Annoyance & Overlay Ruleset
+! Version: 2026.10.05
+! Description: Blocks cookie banner popups, intrusive newsletter overlays, and push prompts
+||cookielaw.org^
+||onetrust.com^
+||cookiebot.com^
+||optanon.blob.core.windows.net^
+||quantcast.mgr.consensu.org^
+||trustarc.com^
+||privacymanager.io^
+||consent.cmp.oath.com^
+||usercentrics.eu^
+||pushcrew.com^
+||onesignal.com^
+||subscribers.com^

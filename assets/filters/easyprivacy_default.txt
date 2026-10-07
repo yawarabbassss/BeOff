@@ -1,0 +1,27 @@
+! Title: BeOff Standard Privacy & Tracker Protection Ruleset
+! Version: 2026.10.01
+! Description: Blocks third-party analytics, fingerprinting, and behavioral trackers
+||google-analytics.com^
+||analytics.google.com^
+||firebaseinstallations.googleapis.com^
+||app-measurement.com^
+||segment.io^
+||mixpanel.com^
+||amplitude.com^
+||branch.io^
+||adjust.com^
+||appsflyer.com^
+||hotjar.com^
+||crazyegg.com^
+||statcounter.com^
+||quantserve.com^
+||scorecardresearch.com^
+||facebook.net^
+||connect.facebook.net^
+||telemetry.sdk.inmobi.com^
+||ads-twitter.com^
+||clarity.ms^
+||mouseflow.com^
+||fullstory.com^
+||newrelic.com^
+||datadoghq.com^

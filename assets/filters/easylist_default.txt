@@ -1,0 +1,33 @@
+! Title: BeOff Standard Ad Blocking Ruleset
+! Version: 2026.10.01
+! Description: Core network-level advertisement blocking rules
+||doubleclick.net^
+||googleads.g.doubleclick.net^
+||pagead2.googlesyndication.com^
+||adservice.google.com^
+||adcolony.com^
+||unityads.unity3d.com^
+||applovin.com^
+||vungle.com^
+||mopub.com^
+||inmobi.com^
+||ironsrc.com^
+||taboola.com^
+||outbrain.com^
+||adnxs.com^
+||rubiconproject.com^
+||criteo.com^
+||popads.net^
+||adroll.com^
+||zedo.com^
+||bidswitch.net^
+||pubmatic.com^
+||openx.net^
+||amazon-adsystem.com^
+||advertising.com^
+||revcontent.com^
+||media.net^
+||exponential.com^
+||propellerads.com^
+||mgid.com^
+||adblade.com^

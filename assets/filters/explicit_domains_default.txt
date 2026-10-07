@@ -1,0 +1,19 @@
+! Title: BeOff Explicit & Inappropriate Adult Domains List
+! Version: 2026.10.05
+! Description: Network level blocklist for explicit adult websites
+||pornhub.com^
+||xvideos.com^
+||xnxx.com^
+||redtube.com^
+||youporn.com^
+||xhamster.com^
+||chaturbate.com^
+||onlyfans.com^
+||adultfriendfinder.com^
+||brazzers.com^
+||stripchat.com^
+||livejasmin.com^
+||cams.com^
+||erome.com^
+||hentaihaven.xxx^
+||nhentai.net^
